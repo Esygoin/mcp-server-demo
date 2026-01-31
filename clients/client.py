@@ -11,8 +11,8 @@ from dashscope import Generation
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-# 加载同目录下的 .env 文件
-env_path = Path(__file__).parent / ".env"
+# 加载 .env 文件
+env_path = Path(__file__).parent.parent / ".env"
 print(f"正在从以下路径加载环境变量: {env_path}")
 load_dotenv(dotenv_path=env_path)
 import dashscope
@@ -23,8 +23,8 @@ if api_key:
     print("API 密钥已设置")
 else:
     print("未找到 API 密钥，请检查 .env 文件")
-
-Qwen_model = "qwen-turbo"
+Qwen_model = os.getenv("QWEN_MODEL")
+print(f"已选择模型{Qwen_model}")
 
 class MCPClient:
     def __init__(self):
@@ -94,7 +94,6 @@ class MCPClient:
             tool_args = data['input']       #可能需要转化为字典的形式
             # Execute tool call 
             result = await self.session.call_tool(tool_name, tool_args)
-            print(type(tool_name))
             history_text.append({"role":"system","content":f"Calling tool {tool_name} with args {tool_args}"}) #调用工具获取回复  
             history_text.append({"role":"system","content":result.content[0].text})
             reply.append(f"Calling Tool {tool_name} with args {tool_args}")
@@ -121,7 +120,6 @@ class MCPClient:
                 query = input("\nQuery: ").strip()
                 if query.lower() == "quit":
                     break
-                
                 response = await self.process_query(query)
                 for statement in response:
                     print(statement)

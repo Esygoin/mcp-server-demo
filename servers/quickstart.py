@@ -36,7 +36,26 @@ async def list_tools() -> list[types.Tool]:
                 },
                 "required": ["temperature", "condition", "humidity", "city"],
             },
+        ),
+        types.Tool(
+            name="get_position",
+            description="确认自己所在的精确位置",
+            inputSchema={
+                "type": "object",
+                "properties": {"position": {"type": "string", "description": "对自己位置的大致描述"}},
+                "required": ["position"],
+            },
+            outputSchema={
+                "type": "object",
+                "properties": {
+                    "coordinate": {"type": "string", "description": "返回准确的坐标"},
+                    "height": {"type": "number", "description": "返回所处位置的高度，单位为米"},
+                    "landmark": {"type": "string", "description": "返回最近的地标"},
+                },
+                "required": ["coordinate", "height", "landmark"],
+            },
         )
+        
     ]
 
 
@@ -58,6 +77,16 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         # output schema, and additionally serialize it into a TextContent block
         # for backwards compatibility with pre-2025-06-18 clients.
         return weather_data
+    
+    elif name == "get_position":
+        position = arguments["position"]
+        position_data = {
+            "coordinate": "北纬0度, 东经1度",
+            "height": 1000,
+            "landmark": "山东大学图书馆",
+        }
+        
+        return position_data
     else:
         raise ValueError(f"Unknown tool: {name}")
 
